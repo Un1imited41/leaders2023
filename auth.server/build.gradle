@@ -1,0 +1,53 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.6'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'com.palantir.docker' version '0.33.0'
+}
+
+group = 'com.tripsa'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-oauth2-authorization-server:0.2.3'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.flywaydb:flyway-core'
+	runtimeOnly 'org.postgresql:postgresql'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+bootJar {
+	archiveName("auth-server.jar")
+}
+
+docker {
+	name System.getenv('DOCKER_REGISTRY') + 'tripsa-auth:'+ System.getenv('ENVIRONMENT')
+	tag 'tripsaRegistry', System.getenv('DOCKER_REGISTRY') + 'tripsa-auth:'+ System.getenv('ENVIRONMENT')
+	dockerfile file('Dockerfile')
+	files tasks.bootJar.outputs
+	pull false
+	noCache true
+	load true
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -1,0 +1,76 @@
+pipeline {
+  agent any
+  tools {
+     gradle '7.4.2'
+     jdk 'openjdk-17'
+  }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+    ansiColor('xterm')
+  }
+
+  triggers {
+    pollSCM('')
+  }
+
+  stages {
+    stage('notify start') {
+      steps {
+        telegramSend " 🕔 ${BUILD_TAG}: start building auth-server, Changes:\n" + getChangeString()
+      }
+    }
+
+    stage('auth-server. build') {
+      steps {
+        sh 'gradle clean bootJar docker dockerPushTripsaRegistry'
+      }
+    }
+
+    stage('deploy') {
+      when {
+        expression { env.ENVIRONMENT != 'prod' }
+      }
+      steps {
+         build job:"deploy/${ENVIRONMENT}", wait: false
+      }
+    }
+  }
+
+  post {
+    success {
+      telegramSend "✅ ${BUILD_TAG}: auth-server build successful"
+    }
+    unstable {
+      telegramSend "⚠ ${BUILD_TAG}: auth-server build marked unstable"
+    }
+    failure {
+      telegramSend "🆘 ${BUILD_TAG}: auth-server build failed"
+    }
+    aborted {
+      telegramSend "↩ ${BUILD_TAG}: auth-server build aborted"
+    }
+  }
+}
+
+@NonCPS
+def getChangeString() {
+    MAX_MSG_LEN = 100
+    def changeString = ""
+
+    echo "Gathering SCM changes"
+    def changeLogSets = currentBuild.rawBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.length; j++) {
+            def entry = entries[j]
+            truncated_msg = entry.msg.take(MAX_MSG_LEN)
+            changeString += " - ${truncated_msg} [${entry.author}]\n"
+        }
+    }
+
+    if (!changeString) {
+        changeString = " - No new changes"
+    }
+    return changeString
+}

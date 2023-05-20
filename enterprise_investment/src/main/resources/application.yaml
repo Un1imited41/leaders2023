@@ -1,0 +1,64 @@
+server:
+  port: 4242
+
+appConfig:
+  default-registration-id: inner-client
+  frontend: http://localhost:4200
+  authServer: http://localhost:8008
+
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5431/postgres?currentSchema=investment
+    username: postgres
+    password: postgres
+  jpa:
+    #    database: postgresql
+    show-sql: true
+    properties:
+      hibernate:
+        #        generate_statistics: true
+        format-sql: true
+        jdbc:
+          batch_size: 50
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8008
+      client:
+        provider:
+          inner-client:
+            issuer-uri: http://localhost:8008
+        registration:
+          inner-client:
+            client-id: inner-client
+            client-secret: ClbhQPZBzwy>gD4?"m'z033B(C1jtU_O"II6P(]T4n#kcIp|:GpRbp0;=sx`$H9
+  mail:
+    host: smtp.mail.ru
+    port: 465
+    username: ikutuzov92@mail.ru
+    password: bKC3E2V8wMppwEgsGrkN
+    properties:
+      mail:
+        debug: true
+        transport:
+          protocol: smtp
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enabled: true
+        smtps:
+          ssl:
+            checkserveridentity: true
+            trust: "*"
+  servlet:
+    multipart:
+      max-file-size: 15MB
+  devtools:
+    restart:
+      enabled: false

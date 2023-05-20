@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  postgresql:
+    image: bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+    volumes:
+      - 'hakaton_postgresql_data_14:/bitnami/postgresql'
+    ports:
+      - "5431:5432"
+
+volumes:
+  hakaton_postgresql_data_14:
+    driver: local

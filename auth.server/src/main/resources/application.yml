@@ -1,0 +1,17 @@
+server:
+  port: 8008
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5431/postgres?currentSchema=auth
+    username: postgres
+    password: postgres
+
+appConfig:
+  issuer: http://localhost:8008
+  registeredClient:
+    clientId: inner-client
+    clientSecret: ClbhQPZBzwy>gD4?"m'z033B(C1jtU_O"II6P(]T4n#kcIp|:GpRbp0;=sx`$H9
+    refreshTokenTTL: P365D
+    accessTokenTTL: P365D
+    reuseRefreshTokens: false
